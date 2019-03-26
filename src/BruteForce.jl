@@ -1,23 +1,123 @@
-
 """
 Problema de asignación. (Vanderbei LP, pg. 227). Dado un conjunto S de m personas, un conjunto D de m tareas, y para cada iS,jD un costo cij de asignar la tarea j a la persona i, el problema de asignación consiste en asignar a cada persona una y solo una tarea, de manera tal que se minimize el costo total. Formule este problema como un problema de programación lineal con enteros. Escriba una función para resolverlo, que tome como entrada una matriz de costos cij arbitraria.
 
 """
 
+export solve_with_brute_force;
+function solve_with_brute_force(m::Matrix{T}):: Vector{Vector{T}} where {T<:Number}
+    checkmatrix(m);
+    return reverse.(min_reversed_combs(m));
+end # brute_force
 
-export brute_force;
-function brute_force(costTable::Matrix{Real})
-	
-	
-	
-	end # brute_force
+export get_combinations;
+"""
+    Returns a Vector{Vector{T}} with all the posible combinations of
+     the elements in the matrix m. Only square matrices of Numbers are allowed.
+"""
+function get_combinations(m::Matrix{T}):: Vector{Vector{T}} where {T<:Number}
+    checkmatrix(m);
+    return reverse.(possible_reversed_combinatoins(m));
+end
 
-function getsub(m::Matrix, rtd::Int, ctd::Int)
+function min_reversed_combs(m::Matrix{T}):: Vector{Vector{T}} where {T<:Number}
     
-    sub = Matrix{eltype(m)}(undef,size(m) .- 1);
+    #Store combinations
+    local coms = Vector{Vector{T}}()
     
-    for d1 in 1:size(m,1)
-        for d2 in 1:size(m,2)
+    #Stop statement
+    if size(m) == (1,1)
+        push!(coms,[m[1,1]]);
+        return coms;
+    end
+    
+    #Recursion block
+    rowsCount::Int = size(m,1)
+    local subComs::Vector{Vector{T}}
+    for r in 1:rowsCount
+        
+        #Recursion call
+        subComs = min_reversed_combs(getsub(m,r,1));
+        
+        #Adding 
+        srowsCount = size(subComs,1);
+        for sr in 1:srowsCount
+            
+            #Adding head
+            push!(subComs[sr],m[r][1]);
+            
+            #Adding subCom
+            push!(coms,subComs[sr]);
+        end
+    end
+    
+    return get_min_coms(coms);
+end
+
+function possible_reversed_combinatoins(m::Matrix{T}):: Vector{Vector{T}} where {T<:Number}
+    
+    #Store combinations
+    local coms = Vector{Vector{T}}()
+    
+    #Stop statement
+    if size(m) == (1,1)
+        push!(coms,[m[1,1]]);
+        return coms;
+    end
+    
+    #Recursion block
+    rowsCount::Int = size(m,1)
+    local subComs::Vector{Vector{T}}
+    for r in 1:rowsCount
+        
+        #Recursion call
+        subComs = possible_reversed_combinatoins(getsub(m,r,1));
+        
+        #Adding 
+        srowsCount = size(subComs,1);
+        for sr in 1:srowsCount
+            
+            #Adding head
+            push!(subComs[sr],m[r][1]);
+            
+            #Adding subCom
+            push!(coms,subComs[sr]);
+        end
+    end
+    
+    return coms;
+end
+
+function get_min_coms(coms::Vector{Vector{T}}):: typeof(coms) where {T<:Number}
+    
+    #min combinations
+    mincoms = Vector{Vector{T}}();
+    
+    minsum = typemax(T);
+    comsum = zero(T);
+    for com in coms
+        comsum = sum(com);
+        if comsum < minsum
+            mincoms = Vector{Vector{T}}();
+            minsum = comsum;
+        end
+        
+        if comsum == minsum
+           push!(mincoms,com); 
+        end
+    end
+    
+    return mincoms;
+end
+
+
+function getsub(m::Matrix{T}, rtd::Int, ctd::Int)::Matrix{T} where {T}
+    
+    sub = Matrix{T}(undef,size(m) .- 1);
+    rowsCount = size(m,1);
+    colCount = size(m,2);
+    
+    for d1 in 1:rowsCount
+        for d2 in 1:colCount
             if d1 < rtd
                  if d2 < ctd
                    sub[d1,d2] = m[d1,d2]
@@ -35,53 +135,4 @@ function getsub(m::Matrix, rtd::Int, ctd::Int)
     end
     
     return sub
-end
-
-function copyrow(m::Matrix, dr::Int)
-    row = Array{eltype(m)}(undef,size(m,2));
-    for ei in 1:size(m,2) row[ei] = m[dr,ei] end 
-    row
-end
-
-
-rowsum(m::Matrix, r::Int) = sum(m, dims = 2)[r] 
-
-export get_combinations
-
-function get_combinations(m)
-   
-   #Stop statement
-    if size(m,1) == 1
-        return toaa(m);
-    end
-    
-    #Recursion
-    combs = [[]];
-    pop!(combs);
-    for row in 1:size(m,2)
-        subcombs = get_combinations(getsub(m,row,1));
-        pushfirst_toall!(subcombs,m[row,1])
-        push_all!(combs,subcombs);
-    end
-    return combs;
-    
-end
-
-function push_all!(to::AbstractArray, from::AbstractArray)
-    for row in 1:length(from) 
-       push!(to,from[row]) 
-    end
-end
-
-function pushfirst_toall!(aa, v)
-    for row in 1:length(aa) 
-       pushfirst!(aa[row],v) 
-    end
-end
-
-function toaa(m)
-    aa = [[zero(eltype(m))]];
-    pop!(aa);
-    push!(aa,copyrow(m,1));
-    aa
 end
