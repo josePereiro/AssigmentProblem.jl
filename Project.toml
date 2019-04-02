@@ -3,6 +3,10 @@ uuid = "71f2beb2-b8b5-579c-bd02-f2e2f2dcc08d"
 authors = ["Jose Antonio Pereiro Morejon <jose.pereiro.lab@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 

@@ -4,8 +4,8 @@ Problema de asignación. (Vanderbei LP, pg. 227). Dado un conjunto S de m person
 
 """
 
-export solve_with_linear_programming;
-function solve_with_linear_programming(m::Matrix{T}) where {T<:Number}
+export solve_with_lineal_programming;
+function solve_with_lineal_programming(m::Matrix{T}) where {T<:Number}
 
 	#Checking matrix
 	checkmatrix(m);
